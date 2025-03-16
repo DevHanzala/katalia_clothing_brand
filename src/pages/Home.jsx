@@ -1,20 +1,31 @@
-// pages/Home.jsx
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Instagram, Heart } from "lucide-react";
 import v1 from '../assets/v1.mp4';
+import v2 from '../assets/v2.mp4';
 import i1 from '../assets/i1.jpg';
 import i2 from '../assets/i2.jpg';
 import i3 from '../assets/i3.jpg';
+import b1 from '../assets/b1.jpg';
+import r1 from '../assets/r1.jpg';
+import r2 from '../assets/r2.jpg';
+import p1 from '../assets/p1.jpg';
+import p2 from '../assets/p2.jpg';
+import p3 from '../assets/p3.jpg';
 
 function Home() {
-  // Main Carousel
   const mainCarouselItems = [
     {
       type: "video",
       src: v1,
       text: "Welcome to Atelier-Katalia\nExperience luxury like never before\nCrafted with passion",
       buttonText: "Explore Now",
+    },
+    {
+      type: "video",
+      src: v2,
+      text: "Men's Luxury Unveiled\nSophisticated style for gentlemen\nTimeless elegance",
+      buttonText: "Discover Menswear",
     },
     {
       type: "image",
@@ -36,31 +47,28 @@ function Home() {
     },
   ];
 
-  // Events Carousel with dummy dates
   const eventCarouselItems = [
     { src: i3, text: "Fashion Show 2025", date: "20/3/25 - 25/3/25" },
-    { src: i1, text: "Art Gallery Opening", date: "15/4/25 - 20/4/25" },
-    { src: i2, text: "Wine Tasting Evening", date: "10/5/25 - 12/5/25" },
+    { src: r1, text: "Art Gallery Opening", date: "15/4/25 - 20/4/25" },
+    { src: p2, text: "Wine Tasting Evening", date: "10/5/25 - 12/5/25" },
     { src: i3, text: "Designer Meet & Greet", date: "25/6/25 - 27/6/25" },
-    { src: i1, text: "Spring Collection Launch", date: "5/7/25 - 10/7/25" },
+    { src: r2, text: "Spring Collection Launch", date: "5/7/25 - 10/7/25" },
     { src: i2, text: "Charity Auction Night", date: "15/8/25 - 16/8/25" },
-    { src: i3, text: "Summer Pop-up Event", date: "20/9/25 - 25/9/25" },
+    { src: p3, text: "Summer Pop-up Event", date: "20/9/25 - 25/9/25" },
   ];
 
-  // AtelierKataliaBraide Carousel
   const braideCarouselItems = [
-    { src: i2, brand: "Braide 1" },
-    { src: i3, brand: "Braide 2" },
-    { src: i1, brand: "Braide 3" },
-    { src: i2, brand: "Braide 4" },
-    { src: i3, brand: "Braide 5" },
+    { src: p1, brand: "Bride 1" },
+    { src: i3, brand: "Bride 2" },
+    { src: r1, brand: "Bride 3" },
+    { src: p2, brand: "Bride 4" },
+    { src: r2, brand: "Bride 5" },
   ];
 
   const [mainIndex, setMainIndex] = useState(0);
   const eventCarouselRef = useRef(null);
   const braideCarouselRef = useRef(null);
 
-  // Animation variants
   const contentVariants = {
     hidden: { opacity: 0, y: 50 },
     visible: { 
@@ -110,7 +118,6 @@ function Home() {
     }
   };
 
-  // Scroll functions for arrows
   const scrollLeft = (ref) => {
     if (ref.current) {
       ref.current.scrollBy({ left: -300, behavior: 'smooth' });
@@ -157,7 +164,7 @@ function Home() {
                 initial="hidden"
                 animate="visible"
                 exit="exit"
-                className="text-xl md:text-3xl md:font-bold font-semibold mb-6 text-center whitespace-pre-line"
+                className="text-xl md:text-2xl md:font-bold font-semibold mb-6 text-center whitespace-pre-line"
               >
                 {mainCarouselItems[mainIndex].text}
               </motion.p>
@@ -168,7 +175,7 @@ function Home() {
                 exit="exit"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-6 md:py-3 py-2 bg-white text-black rounded font-semibold"
+                className="px-6 md:py-3 py-2 bg-white cursor-pointer text-black rounded font-semibold"
               >
                 {mainCarouselItems[mainIndex].buttonText}
               </motion.button>
@@ -191,20 +198,20 @@ function Home() {
       {/* Side-by-side Images */}
       <div className="flex flex-col md:flex-row w-full">
         <div className="w-full md:w-1/2 h-[70vh] md:h-[90vh] relative">
-          <img src={i3} alt="Section 1" className="w-full h-full object-cover" />
+          <img src={b1} alt="Section 1" className="w-full h-full object-fill" />
           <motion.div 
             className="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/30"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
           >
-            <p className="text-xl md:text-2xl text-center mb-4">Exclusive Designs<br />Crafted with Care</p>
+            <p className="text-xl md:text-2xl text-center mb-4">Exclusive Designs<br />for Men's wear</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="px-6 py-2 bg-white text-black rounded"
             >
-              Learn More
+              Shop now
             </motion.button>
           </motion.div>
         </div>
@@ -290,7 +297,6 @@ function Home() {
                 >
                   {item.text}
                 </motion.p>
-              
                 <motion.button
                   variants={childVariants}
                   whileHover={{ scale: 1.05 }}
@@ -310,7 +316,7 @@ function Home() {
         `}</style>
       </div>
 
-      {/* AtelierKataliaBraide Section */}
+      {/* AtelierKataliaBride Section */}
       <div className="md:py-8 py-4">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center mb-4">
@@ -407,24 +413,29 @@ function Home() {
         `}</style>
       </div>
 
-      <div className="py-6 md:py-4">
-<motion.div
-  className="max-w-full mx-auto px-4 flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6 text-center"
-  initial={{ opacity: 0, y: 20 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.8 }}
->
-  <p className="text-sm md:text-lg font-medium">Looking for a wedding dress or guest look? We have it!</p>
-  <motion.button
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-    className="px-4 md:px-6 py-2 bg-black text-white rounded text-sm md:text-base font-semibold whitespace-nowrap"
-  >
-    + Book Your Appointment
-  </motion.button>
-</motion.div>
-</div>
-</div>
+      {/* Fixed Book Appointment Section */}
+      <motion.div
+        className="fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm py-2 md:py-1 z-50 w-full"
+        initial={{ opacity: 0, y: 100 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="max-w-7xl mx-auto px-4 flex  flex-col md:flex-row justify-center items-center gap-2 md:gap-6 text-center">
+          <p className="text-sm font-medium hidden md:block">
+            Looking for a wedding dress or guest look? We have it!
+          </p>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full md:w-auto px-4 md:px-6 py-2 bg-black text-white rounded text-sm md:text-base font-semibold whitespace-nowrap"
+          >
+            + Book Your Appointment
+          </motion.button>
+        </div>
+      </motion.div>
+
+      <div className="h-20 md:h-24"></div>
+    </div>
   );
 }
 
