@@ -14,33 +14,41 @@ import casualWomen from '../assets/i2.jpg'; // Replace with your actual image
 import weddingWomen from '../assets/p3.jpg'; // Replace with your actual image
 
 function Home() {
+  // Main carousel items: 1 video/image per frame
   const mainCarouselItems = [
     {
-      type: "video",
+      type: "video", // First frame: 1 video
       src: v1,
       text: "Welcome to Atelier-Katalia\nExperience luxury like never before\nCrafted with passion",
       buttonText: "Explore Now",
     },
     {
-      type: "image",
+      type: "image", // Second frame: 1 image
       src: i2,
       text: "Discover Our Collection\nTimeless designs await you\nPerfect for every occasion",
       buttonText: "Shop Now",
     },
     {
-      type: "image",
+      type: "image", // Third frame: 1 image
       src: i3,
       text: "New Arrivals\nFresh styles just dropped\nBe the first to own",
       buttonText: "View More",
     },
     {
-      type: "video",
-      src: v2, // Men's video moved to the end
+      type: "image", // Fourth frame: 1 image
+      src: p2,
+      text: "Elegant Styles\nPerfect for any event\nTimeless beauty",
+      buttonText: "Explore More",
+    },
+    {
+      type: "video", // Last frame: Men's video
+      src: v2,
       text: "Men's Luxury Unveiled\nSophisticated style for gentlemen\nTimeless elegance",
       buttonText: "Discover Menswear",
     },
   ];
 
+  // Event carousel items
   const eventCarouselItems = [
     { src: i3, text: "Fashion Show 2025", date: "20/3/25 - 25/3/25" },
     { src: r1, text: "Art Gallery Opening", date: "15/4/25 - 20/4/25" },
@@ -51,6 +59,7 @@ function Home() {
     { src: p3, text: "Summer Pop-up Event", date: "20/9/25 - 25/9/25" },
   ];
 
+  // Bride carousel items
   const braideCarouselItems = [
     { src: p1, brand: "Bride 1" },
     { src: i3, brand: "Bride 2" },
@@ -59,6 +68,7 @@ function Home() {
     { src: r2, brand: "Bride 5" },
   ];
 
+  // State and refs
   const [mainIndex, setMainIndex] = useState(0);
   const eventCarouselRef = useRef(null);
   const braideCarouselRef = useRef(null);
@@ -68,26 +78,28 @@ function Home() {
   useEffect(() => {
     const interval = setInterval(() => {
       setMainIndex((prev) => (prev + 1) % mainCarouselItems.length);
-    }, 5000); // 5 seconds
+    }, 5000); // 5 seconds interval
     return () => clearInterval(interval);
   }, [mainCarouselItems.length]);
 
+  // Variants for main carousel content animation
   const contentVariants = {
     hidden: { opacity: 0, y: 50, scale: 0.95 },
     visible: { 
       opacity: 1, 
       y: 0,
       scale: 1,
-      transition: { duration: 0.8, ease: "easeOut" }
+      transition: { duration: 1, ease: "easeOut" } // Content transition
     },
     exit: { 
       opacity: 0, 
       y: -50,
       scale: 0.95,
-      transition: { duration: 0.5 }
+      transition: { duration: 0.6 } // Slightly slower exit
     }
   };
 
+  // Variants for event carousel items
   const eventItemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -97,6 +109,7 @@ function Home() {
     }
   };
 
+  // Variants for event carousel child elements
   const childVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -106,6 +119,7 @@ function Home() {
     }
   };
 
+  // Variants for bride carousel items
   const braideItemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -115,6 +129,7 @@ function Home() {
     }
   };
 
+  // Variants for bride carousel overlay
   const overlayVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -123,6 +138,7 @@ function Home() {
     }
   };
 
+  // Scroll functions for horizontal carousels
   const scrollLeft = (ref) => {
     if (ref.current) {
       ref.current.scrollBy({ left: -300, behavior: 'smooth' });
@@ -135,8 +151,9 @@ function Home() {
     }
   };
 
+  // Handle drag end for main carousel
   const handleDragEnd = (event, info) => {
-    const threshold = 50; // Reduced threshold for smoother response
+    const threshold = 50;
     if (info.offset.x < -threshold) {
       setMainIndex((prev) => (prev + 1) % mainCarouselItems.length);
     } else if (info.offset.x > threshold) {
@@ -147,21 +164,22 @@ function Home() {
   return (
     <div className="relative">
       {/* Main Carousel */}
-      <div className="w-full md:h-screen h-[85vh] overflow-hidden relative" ref={dragConstraintsRef}>
+      <div className="w-full md:h-[93vh] h-[85vh] overflow-hidden relative" ref={dragConstraintsRef}>
         <AnimatePresence mode="wait">
           <motion.div
             key={mainIndex}
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            transition={{ duration: 3, ease: "easeOut" }} // 3-second frame transition
             className="absolute inset-0"
             drag="x"
-            dragConstraints={{ left: -100, right: 100 }} // Limited drag range for smoother control
-            dragElastic={0.2} // Increased elasticity for smoother feel
+            dragConstraints={{ left: -100, right: 100 }}
+            dragElastic={0.2}
             onDragEnd={handleDragEnd}
             dragMomentum={false}
           >
+            {/* Desktop and Mobile View: Single Video/Image per Frame */}
             {mainCarouselItems[mainIndex].type === "video" ? (
               <video
                 src={mainCarouselItems[mainIndex].src}
@@ -177,6 +195,8 @@ function Home() {
                 className="w-full h-full object-cover"
               />
             )}
+
+            {/* Overlay Text and Button */}
             <div className="absolute inset-0 flex items-center justify-center flex-col text-white bg-black/20">
               <motion.p
                 variants={contentVariants}
@@ -201,7 +221,9 @@ function Home() {
             </div>
           </motion.div>
         </AnimatePresence>
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3">
+
+        {/* Carousel Dots */}
+        <div className="absolute md:bottom-12 bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3">
           {mainCarouselItems.map((_, index) => (
             <button
               key={index}
@@ -254,7 +276,7 @@ function Home() {
         </div>
       </div>
 
-      {/* Events Section (Restored to Original) */}
+      {/* Events Section */}
       <div className="md:py-8 py-4">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
@@ -335,7 +357,7 @@ function Home() {
         `}</style>
       </div>
 
-      {/* AtelierKataliaBride Section (Restored to Original) */}
+      {/* AtelierKataliaBride Section */}
       <div className="md:py-8 py-4">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex justify-between items-center mb-4">

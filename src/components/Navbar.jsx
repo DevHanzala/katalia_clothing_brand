@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { X, MapPin, Heart, User, Search, ChevronLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
+import i1 from '../assets/i1.jpg';
+import i2 from '../assets/i2.jpg';
 import i3 from '../assets/i3.jpg';
 
 function Navbar({ onSidebarToggle }) {
@@ -11,6 +13,7 @@ function Navbar({ onSidebarToggle }) {
   const [translateReady, setTranslateReady] = useState(false);
   const [selectedLang, setSelectedLang] = useState("en");
   const [showWeddingSubmenu, setShowWeddingSubmenu] = useState(false);
+  const [activeMenu, setActiveMenu] = useState(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -85,6 +88,10 @@ function Navbar({ onSidebarToggle }) {
     }
   };
 
+  const toggleMenu = (menuName) => {
+    setActiveMenu(activeMenu === menuName ? null : menuName);
+  };
+
   const sidebarVariants = {
     hidden: { x: "-100%" },
     visible: { x: 0, transition: { type: "spring", stiffness: 300, damping: 30 } },
@@ -97,9 +104,30 @@ function Navbar({ onSidebarToggle }) {
     exit: { opacity: 0, scale: 0.8, transition: { duration: 0.3 } }
   };
 
-  const typingVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { duration: 1.5, repeat: Infinity, repeatType: "loop", ease: "easeInOut" } }
+  const dropdownVariants = {
+    hidden: { opacity: 0, height: 0, y: -10 },
+    visible: { 
+      opacity: 1, 
+      height: "auto", 
+      y: 0, 
+      transition: { 
+        duration: 0.4, 
+        ease: "easeOut", 
+        when: "beforeChildren", 
+        staggerChildren: 0.1 
+      } 
+    },
+    exit: { 
+      opacity: 0, 
+      height: 0, 
+      y: -10, 
+      transition: { duration: 0.3, ease: "easeIn" } 
+    }
+  };
+
+  const dropdownItemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
   };
 
   const topBarVariants = {
@@ -114,10 +142,19 @@ function Navbar({ onSidebarToggle }) {
 
   const isHome = location.pathname === "/";
 
+  const menuItems = [
+    { name: "WEDDING DRESSES", subItems: ["All Wedding Dresses", "New In"], images: [i1, i2] },
+    { name: "CEREMONIAL DRESS", subItems: ["Formal Gowns", "Evening Wear"], images: [i2, i3] },
+    { name: "GUEST DRESS", subItems: ["Party Dresses", "Casual Chic"], images: [i3, i1] },
+    { name: "INSIDE KATALIA", subItems: ["Our Story", "Design Process"], images: [i1, i3] },
+    { name: "EVENTS", subItems: ["Upcoming Shows", "Past Events"], images: [i2, i1] },
+  ];
+
   return (
     <>
+      {/* Top Bar */}
       <motion.div 
-        className="fixed top-0 left-0 w-full bg-black text-white z-50 p-1 md:p-2" 
+        className="fixed top-0 left-0 w-full bg-black text-white z-50 p-1" 
         variants={topBarVariants} 
         initial="hidden" 
         animate="visible"
@@ -137,58 +174,136 @@ function Navbar({ onSidebarToggle }) {
         </div>
       </motion.div>
 
-      <nav 
-        className={`fixed top-[28px] md:top-[40px] left-0 w-full p-3 md:p-4 flex justify-between items-center z-40 transition-all duration-300 ${
-          isHome && !scrolled ? 'bg-transparent' : 'bg-white shadow-md'
+      {/* Navbar */}
+      <motion.nav 
+        className={`fixed top-[28px] md:top-[32px] left-0 w-full p-3 md:p-2 flex justify-between items-center z-50 transition-all duration-300 ${
+          activeMenu || (!isHome || scrolled) ? 'bg-white shadow-md' : 'bg-transparent'
         }`}
+        animate={{
+          backgroundColor: activeMenu ? '#ffffff' : (isHome && !scrolled ? 'transparent' : '#ffffff'),
+          transition: { duration: 0.3 }
+        }}
       >
         <div className="flex items-center order-1">
+          {/* Mobile Hamburger Menu */}
           <motion.button 
             onClick={() => setIsOpen(true)} 
-            className="flex items-center" 
+            className="md:hidden flex items-center" 
             whileHover={{ scale: 1.05 }} 
             whileTap={{ scale: 0.95 }}
           >
-            <div className={`flex flex-col gap-1 ${isHome && !scrolled ? 'text-white' : 'text-black'}`}>
+            <div className={`flex flex-col gap-1 ${activeMenu || (!isHome || scrolled) ? 'text-black' : 'text-white'}`}>
               <span className="w-4 h-[2px] bg-current"></span>
               <span className="w-4 h-[2px] bg-current"></span>
             </div>
-            <span className={`hidden md:block ml-2 text-sm md:text-base ${isHome && !scrolled ? 'text-white' : 'text-black'}`}>
-              MENU
-            </span>
+      
           </motion.button>
-          <motion.h1 
-            className={`text-lg md:text-2xl font-['Brush_Script_MT'] ml-2 md:absolute md:left-1/2 md:transform md:-translate-x-1/2 ${
-              isHome && !scrolled ? 'text-white' : 'text-black'
+
+          {/* Brand Name */}
+          <h1 
+            className={`text-lg md:text-2xl font-['Brush_Script_MT'] ml-2 md:ml-0 ${
+              activeMenu || (!isHome || scrolled) ? 'text-black' : 'text-white'
             }`}
-            variants={typingVariants}
-            initial="hidden"
-            animate="visible"
           >
-            KATALIA
-          </motion.h1>
+            ATELIER-KATALIA
+          </h1>
+
+          {/* Desktop Menu Items */}
+          <div className="hidden md:flex items-center gap-6 ml-6">
+            {menuItems.map((item) => (
+              <motion.div 
+                key={item.name} 
+                className="relative "
+                whileHover={{ scale: 1.05 }}
+              >
+                <button 
+                  onClick={() => toggleMenu(item.name)}
+                  className={`text-base cursor-pointer ${activeMenu || (!isHome || scrolled) ? 'text-black' : 'text-white'} ${activeMenu === item.name ? 'underline' : ''}`}
+                >
+                  {item.name}
+                </button>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
+        {/* Icons */}
         <div className="flex items-center gap-2 md:gap-4 order-2">
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <MapPin size={16} className={`md:size-6 ${isHome && !scrolled ? 'text-white' : 'text-black'}`} />
+            <MapPin size={16} className={`md:size-5 ${activeMenu || (!isHome || scrolled) ? 'text-black/80' : 'text-white/80'}`} />
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Heart size={16} className={`md:size-6 ${isHome && !scrolled ? 'text-white' : 'text-black'}`} />
+            <Heart size={16} className={`md:size-5 ${activeMenu || (!isHome || scrolled) ? 'text-black/80' : 'text-white/80'}`} />
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <User size={16} className={`md:size-6 ${isHome && !scrolled ? 'text-white' : 'text-black'}`} />
+            <User size={16} className={`md:size-5 ${activeMenu || (!isHome || scrolled) ? 'text-black/80' : 'text-white/80'}`} />
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Search size={16} className={`md:size-6 ${isHome && !scrolled ? 'text-white' : 'text-black'}`} />
+            <Search size={16} className={`md:size-5 ${activeMenu || (!isHome || scrolled) ? 'text-black/80' : 'text-white/80'}`} />
           </motion.div>
         </div>
-      </nav>
+      </motion.nav>
 
+      {/* Desktop Dropdown Menu */}
+      <AnimatePresence>
+        {activeMenu && (
+          <motion.div 
+            variants={dropdownVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            className="hidden md:block fixed top-[70px] left-0 w-full border-t-1  bg-white shadow-lg z-[60] px-6 py-2 my-2"
+          >
+            {menuItems.map((item) => (
+              activeMenu === item.name && (
+                <motion.div 
+                  key={item.name} 
+                  className="flex"
+                  variants={dropdownItemVariants}
+                >
+                  {/* Left Side Images */}
+                  <motion.div 
+                    className="w-1/3 flex gap-[1.5px]"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
+                  >
+                    <img src={item.images[0]} alt={`${item.name} 1`} className="w-1/2 h-72 object-cover" />
+                    <img src={item.images[1]} alt={`${item.name} 2`} className="w-1/2 h-72 object-cover" />
+                  </motion.div>
+                  {/* Right Side Links */}
+                  <motion.div 
+                    className="w-2/3 grid grid-cols-4 gap-4 pl-6"
+                    variants={dropdownItemVariants}
+                  >
+                    {item.subItems.map((subItem) => (
+                      <motion.div
+                        key={subItem}
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <Link 
+                          to={`/${item.name.toLowerCase().replace(" ", "-")}/${subItem.toLowerCase().replace(" ", "-")}`} 
+                          className="text-base text-black hover:underline cursor-pointer"
+                          onClick={() => setActiveMenu(null)}
+                        >
+                          {subItem}
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </motion.div>
+                </motion.div>
+              )
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Sidebar */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div className="fixed inset-0 bg-black/50 z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            <motion.div variants={sidebarVariants} initial="hidden" animate="visible" exit="exit" className="bg-white w-80 md:w-96 h-full p-6 flex flex-col">
+          <motion.div className="md:hidden fixed inset-0 bg-black/50 z-50" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.div variants={sidebarVariants} initial="hidden" animate="visible" exit="exit" className="bg-white w-80 h-full p-6 flex flex-col">
               <motion.button onClick={() => setIsOpen(false)} className="mb-6 self-end" whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
                 <X size={24} />
               </motion.button>
@@ -222,6 +337,7 @@ function Navbar({ onSidebarToggle }) {
         )}
       </AnimatePresence>
 
+      {/* Language Modal */}
       <AnimatePresence>
         {isLangModalOpen && (
           <motion.div variants={modalVariants} initial="hidden" animate="visible" exit="exit" className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
@@ -233,9 +349,9 @@ function Navbar({ onSidebarToggle }) {
                 <img src={i3} alt="Language selection" className="object-cover w-full h-full" />
               </div>
               <div className="w-full md:w-1/2 h-1/2 md:h-full p-6 md:p-8 flex flex-col justify-center items-center bg-gradient-to-b from-gray-50 to-white">
-                <motion.h1 className="text-3xl md:text-4xl font-['Brush_Script_MT'] text-gray-800 mb-4" variants={typingVariants} initial="hidden" animate="visible">
+                <h1 className="text-3xl md:text-4xl font-['Brush_Script_MT'] text-gray-800 mb-4">
                   KATALIA
-                </motion.h1>
+                </h1>
                 <p className="text-base md:text-lg text-gray-600 mb-6 text-center">Choose location for better readability</p>
                 <motion.select onChange={(e) => setSelectedLang(e.target.value)} className="w-full max-w-xs p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 bg-white mb-6" defaultValue="en" whileHover={{ scale: 1.02 }}>
                   {[

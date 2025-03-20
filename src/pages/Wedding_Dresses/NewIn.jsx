@@ -25,7 +25,7 @@ function NewIn() {
       image: i2,
       category: ["Half-sleeve", "Elegant", "A-line", "V-neck", "Floor-length", "Lace"],
       relatedImages: [i2, i3, r1],
-      description: "A stunning new addition with elegant lace and a flattering A-line silhouette."
+      description: "A stunning new addition with elegant lace and a flattering A-line silhouette.",
     },
     {
       id: 2,
@@ -34,7 +34,7 @@ function NewIn() {
       image: r2,
       category: ["Princess", "Modern", "Sweetheart", "Tea-length", "Satin"],
       relatedImages: [r2, p1, i3],
-      description: "A modern princess-style dress with a satin finish and sweetheart neckline."
+      description: "A modern princess-style dress with a satin finish and sweetheart neckline.",
     },
     {
       id: 3,
@@ -43,7 +43,7 @@ function NewIn() {
       image: p2,
       category: ["A-line", "Vintage", "Scoop", "Knee-length", "Chiffon"],
       relatedImages: [p2, p3, i2],
-      description: "A vintage-inspired chiffon dress with a scoop neckline and knee-length hem."
+      description: "A vintage-inspired chiffon dress with a scoop neckline and knee-length hem.",
     },
   ];
 
@@ -67,8 +67,7 @@ function NewIn() {
   };
 
   const handleNext = () => {
-    if (currentIndex + 3 < filteredDresses.length)
-      setCurrentIndex(currentIndex + 1);
+    if (currentIndex + 3 < filteredDresses.length) setCurrentIndex(currentIndex + 1);
   };
 
   const handlePageChange = (page) => {
@@ -106,13 +105,13 @@ function NewIn() {
       <div className="max-w-6xl mx-auto mb-8 flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="flex items-center gap-4">
           <button
-            className="flex items-center gap-2 px-4 py-2 bg-white shadow rounded"
+            className="flex items-center gap-2 px-4 py-2 cursor-pointer"
             onClick={() => setIsFilterOpen(true)}
           >
-            <Filter size={20} /> Filter
+            <Filter size={20} /> FILTER
           </button>
-          <select className="px-4 py-2 bg-white shadow">
-            <option>Recommended</option>
+          <select className="px-4 py-2">
+            <option>RECOMENDED</option>
             <option>Alphabetical</option>
             <option>New In</option>
           </select>
@@ -122,9 +121,25 @@ function NewIn() {
         </div>
       </div>
 
+      {/* Applied Filters */}
+      {Object.keys(appliedFilters).length > 0 && (
+        <div className="max-w-6xl mx-auto mb-4 flex flex-wrap gap-2">
+          {Object.entries(appliedFilters).flatMap(([category, values]) =>
+            values.map((value) => (
+              <span
+                key={`${category}-${value}`}
+                className="px-2 py-1 bg-gray-300 text-gray-600 text-sm"
+              >
+                {category}: {value}
+              </span>
+            ))
+          )}
+        </div>
+      )}
+
       {/* Filter Sidebar */}
       <FilterSidebar
-        isOpen={isFilterOpen}
+        isOpen={isFilterOpen} // Fixed: Use isFilterOpen state variable
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}
       />
@@ -178,7 +193,7 @@ function NewIn() {
 
       {/* Additional Images Section */}
       <div className="max-w-6xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-1">
-        {baseDressData.map((dress, index) => {
+        {baseDressData.map((dress) => {
           const newId = dress.id + (currentPage - 1) * 3;
           return (
             <motion.div
@@ -207,15 +222,11 @@ function NewIn() {
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center gap-4 mt-8">
+      <div className="flex justify-center gap-4 mt-8 border-t-1 border-b-1">
         {[1, 2, 3].map((page) => (
           <button
             key={page}
-            className={`px-4 py-2 shadow rounded-full ${
-              currentPage === page
-                ? "bg-blue-500 text-white"
-                : "bg-white hover:bg-gray-100"
-            }`}
+            className={`px-4 py-2 ${currentPage === page ? "underline" : "hover:bg-gray-100"}`}
             onClick={() => handlePageChange(page)}
           >
             {page}
