@@ -19,64 +19,82 @@ function NewInDressDetail() {
 
   const dressData = {
     1: {
+      id: 1,
       name: "New Wedding Dress 1",
       price: "$499.99",
+      image: i2, // Added for favorites
       description: "A stunning new addition with elegant lace and a flattering A-line silhouette.",
       images: [i2, i3, r1],
       category: ["Half-sleeve", "Elegant", "A-line", "V-neck", "Floor-length", "Lace"],
     },
     2: {
+      id: 2,
       name: "New Wedding Dress 2",
       price: "$599.99",
+      image: r2,
       description: "A modern princess-style dress with a satin finish and sweetheart neckline.",
       images: [r2, p1, i3],
       category: ["Princess", "Modern", "Sweetheart", "Tea-length", "Satin"],
     },
     3: {
+      id: 3,
       name: "New Wedding Dress 3",
       price: "$449.99",
+      image: p2,
       description: "A vintage-inspired chiffon dress with a scoop neckline and knee-length hem.",
       images: [p2, p3, i2],
       category: ["A-line", "Vintage", "Scoop", "Knee-length", "Chiffon"],
     },
     4: {
+      id: 4,
       name: "New Wedding Dress 1",
       price: "$499.99",
+      image: i2,
       description: "A stunning new addition with elegant lace and a flattering A-line silhouette.",
       images: [i2, i3, r1],
       category: ["Half-sleeve", "Elegant", "A-line", "V-neck", "Floor-length", "Lace"],
     },
     5: {
+      id: 5,
       name: "New Wedding Dress 2",
       price: "$599.99",
+      image: r2,
       description: "A modern princess-style dress with a satin finish and sweetheart neckline.",
       images: [r2, p1, i3],
       category: ["Princess", "Modern", "Sweetheart", "Tea-length", "Satin"],
     },
     6: {
+      id: 6,
       name: "New Wedding Dress 3",
       price: "$449.99",
+      image: p2,
       description: "A vintage-inspired chiffon dress with a scoop neckline and knee-length hem.",
       images: [p2, p3, i2],
       category: ["A-line", "Vintage", "Scoop", "Knee-length", "Chiffon"],
     },
     7: {
+      id: 7,
       name: "New Wedding Dress 1",
       price: "$499.99",
+      image: i2,
       description: "A stunning new addition with elegant lace and a flattering A-line silhouette.",
       images: [i2, i3, r1],
       category: ["Half-sleeve", "Elegant", "A-line", "V-neck", "Floor-length", "Lace"],
     },
     8: {
+      id: 8,
       name: "New Wedding Dress 2",
       price: "$599.99",
+      image: r2,
       description: "A modern princess-style dress with a satin finish and sweetheart neckline.",
       images: [r2, p1, i3],
       category: ["Princess", "Modern", "Sweetheart", "Tea-length", "Satin"],
     },
     9: {
+      id: 9,
       name: "New Wedding Dress 3",
       price: "$449.99",
+      image: p2,
       description: "A vintage-inspired chiffon dress with a scoop neckline and knee-length hem.",
       images: [p2, p3, i2],
       category: ["A-line", "Vintage", "Scoop", "Knee-length", "Chiffon"],
@@ -84,8 +102,10 @@ function NewInDressDetail() {
   };
 
   const defaultDress = {
+    id: dressId,
     name: `New Wedding Dress ${dressId}`,
     price: "$499.99",
+    image: i3,
     description: "Default description for new wedding dress.",
     images: [i3],
     category: ["Simple"],
@@ -96,6 +116,14 @@ function NewInDressDetail() {
   const [mainImage, setMainImage] = useState(displayImages[0]);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
+  const [favorites, setFavorites] = useState([]);
+  const [popupMessage, setPopupMessage] = useState({ text: "", isVisible: false, type: "" });
+
+  useEffect(() => {
+    // Load favorites from localStorage on mount
+    const storedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    setFavorites(storedFavorites);
+  }, []);
 
   useEffect(() => {
     console.log("ID:", dressId, "Current Dress:", currentDress, "Display Images:", displayImages, "Main Image:", mainImage);
@@ -108,6 +136,32 @@ function NewInDressDetail() {
     }).catch(() => {
       alert("Failed to copy URL.");
     });
+  };
+
+  const toggleFavorite = () => {
+    const isFavorite = favorites.some((fav) => fav.id === currentDress.id);
+    let updatedFavorites;
+
+    if (isFavorite) {
+      updatedFavorites = favorites.filter((fav) => fav.id !== currentDress.id);
+      setPopupMessage({ text: "Removed from Favorites!", isVisible: true, type: "remove" });
+    } else {
+      updatedFavorites = [...favorites, { 
+        id: currentDress.id, 
+        name: currentDress.name, 
+        price: currentDress.price, 
+        description: currentDress.description, 
+        image: currentDress.image 
+      }];
+      setPopupMessage({ text: "Added to Favorites!", isVisible: true, type: "add" });
+    }
+
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+
+    setTimeout(() => {
+      setPopupMessage((prev) => ({ ...prev, isVisible: false }));
+    }, 2000);
   };
 
   const handleCarouselClick = (dressId) => {
@@ -123,6 +177,20 @@ function NewInDressDetail() {
 
   const scrollCarouselRight = () => {
     if (carouselRef.current) carouselRef.current.scrollBy({ left: 200, behavior: "smooth" });
+  };
+
+  const popupVariants = {
+    hidden: { opacity: 0, y: -50 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -50,
+      transition: { duration: 0.3 }
+    }
   };
 
   return (
@@ -187,9 +255,18 @@ function NewInDressDetail() {
               <button onClick={handleShare} className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
                 <Share2 size={20} /> Share
               </button>
-              <button className="flex items-center gap-2 text-gray-600 hover:text-red-600">
-                <Heart size={20} /> Favorite
-              </button>
+              <motion.button 
+                onClick={toggleFavorite} 
+                className="flex items-center gap-2 text-gray-600 hover:text-red-600"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Heart 
+                  size={20} 
+                  className={favorites.some(fav => fav.id === currentDress.id) ? "fill-red-500 text-red-500" : ""}
+                /> 
+                Favorite
+              </motion.button>
             </div>
             <button className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
               Book Appointment
@@ -280,6 +357,27 @@ function NewInDressDetail() {
             </button>
           </div>
         </div>
+
+        {/* Popup Notification */}
+        <motion.div
+          className="fixed top-4 right-4 z-50"
+          initial="hidden"
+          animate={popupMessage.isVisible ? "visible" : "hidden"}
+          exit="exit"
+          variants={popupVariants}
+        >
+          <div 
+            className={`bg-white shadow-lg rounded-lg p-4 flex items-center gap-3 border-l-4 ${
+              popupMessage.type === "add" ? "border-green-500" : "border-red-500"
+            }`}
+          >
+            <Heart 
+              size={20} 
+              className={popupMessage.type === "add" ? "text-green-500" : "text-red-500"} 
+            />
+            <p className="text-sm md:text-base text-gray-800">{popupMessage.text}</p>
+          </div>
+        </motion.div>
       </div>
 
       <style jsx>{`

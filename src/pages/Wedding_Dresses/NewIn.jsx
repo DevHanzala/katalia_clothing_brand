@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Filter } from "lucide-react";
+import { ChevronLeft, ChevronRight, Filter, Heart } from "lucide-react";
 import i2 from "../../assets/i2.jpg";
 import i3 from "../../assets/i3.jpg";
 import r1 from "../../assets/r1.jpg";
@@ -16,6 +16,8 @@ function NewIn() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState({});
+  const [favorites, setFavorites] = useState([]);
+  const [popupMessage, setPopupMessage] = useState({ text: "", isVisible: false, type: "" });
 
   const baseDressData = [
     {
@@ -62,6 +64,38 @@ function NewIn() {
 
   const visibleDresses = filteredDresses.slice(currentIndex, currentIndex + 3);
 
+  useState(() => {
+    // Load favorites from localStorage on mount
+    const storedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    setFavorites(storedFavorites);
+  }, []);
+
+  const toggleFavorite = (dress) => {
+    const isFavorite = favorites.some((fav) => fav.id === dress.id);
+    let updatedFavorites;
+
+    if (isFavorite) {
+      updatedFavorites = favorites.filter((fav) => fav.id !== dress.id);
+      setPopupMessage({ text: "Removed from Favorites!", isVisible: true, type: "remove" });
+    } else {
+      updatedFavorites = [...favorites, {
+        id: dress.id,
+        name: dress.name,
+        price: dress.price,
+        description: dress.description,
+        image: dress.image
+      }];
+      setPopupMessage({ text: "Added to Favorites!", isVisible: true, type: "add" });
+    }
+
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+
+    setTimeout(() => {
+      setPopupMessage((prev) => ({ ...prev, isVisible: false }));
+    }, 2000);
+  };
+
   const handlePrev = () => {
     if (currentIndex > 0) setCurrentIndex(currentIndex - 1);
   };
@@ -78,6 +112,20 @@ function NewIn() {
   const handleApplyFilters = (filters) => {
     setAppliedFilters(filters);
     setCurrentIndex(0);
+  };
+
+  const popupVariants = {
+    hidden: { opacity: 0, y: -50 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -50,
+      transition: { duration: 0.3 }
+    }
   };
 
   return (
@@ -139,7 +187,7 @@ function NewIn() {
 
       {/* Filter Sidebar */}
       <FilterSidebar
-        isOpen={isFilterOpen} // Fixed: Use isFilterOpen state variable
+        isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}
       />
@@ -150,7 +198,7 @@ function NewIn() {
           {visibleDresses.map((dress) => (
             <motion.div
               key={dress.id}
-              className=""
+              className="relative"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
@@ -167,7 +215,19 @@ function NewIn() {
               </Link>
               <h2 className="text-lg font-semibold">{dress.name}</h2>
               <p className="text-gray-600 mb-2">Newly arrived wedding dress</p>
-              <p className="text-gray-600">{dress.price}</p>
+              <div className="flex justify-between items-center">
+                <p className="text-gray-600">{dress.price}</p>
+                <motion.button
+                  onClick={() => toggleFavorite(dress)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Heart
+                    size={20}
+                    className={favorites.some(fav => fav.id === dress.id) ? "fill-red-500 text-red-500" : "text-gray-600"}
+                  />
+                </motion.button>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -198,7 +258,7 @@ function NewIn() {
           return (
             <motion.div
               key={newId}
-              className=""
+              className="relative"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
@@ -215,7 +275,19 @@ function NewIn() {
               </Link>
               <h2 className="text-lg font-semibold">{dress.name}</h2>
               <p className="text-gray-600 mb-2">Newly arrived wedding dress</p>
-              <p className="text-gray-600">{dress.price}</p>
+              <div className="flex justify-between items-center">
+                <p className="text-gray-600">{dress.price}</p>
+                <motion.button
+                  onClick={() => toggleFavorite({ ...dress, id: newId })}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Heart
+                    size={20}
+                    className={favorites.some(fav => fav.id === newId) ? "fill-red-500 text-red-500" : "text-gray-600"}
+                  />
+                </motion.button>
+              </div>
             </motion.div>
           );
         })}
@@ -233,6 +305,27 @@ function NewIn() {
           </button>
         ))}
       </div>
+
+      {/* Popup Notification */}
+      <motion.div
+        className="fixed top-4 right-4 z-50"
+        initial="hidden"
+        animate={popupMessage.isVisible ? "visible" : "hidden"}
+        exit="exit"
+        variants={popupVariants}
+      >
+        <div 
+          className={`bg-white shadow-lg rounded-lg p-4 flex items-center gap-3 border-l-4 ${
+            popupMessage.type === "add" ? "border-green-500" : "border-red-500"
+          }`}
+        >
+          <Heart 
+            size={20} 
+            className={popupMessage.type === "add" ? "text-green-500" : "text-red-500"} 
+          />
+          <p className="text-sm md:text-base text-gray-800">{popupMessage.text}</p>
+        </div>
+      </motion.div>
     </div>
   );
 }

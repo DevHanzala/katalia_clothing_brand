@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useRef } from "react";
-import { Link, useLocation } from "react-router-dom"; // Added useLocation for URL
-import { Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { Filter, ChevronLeft, ChevronRight, Heart } from "lucide-react";
 import i2 from "../../assets/i2.jpg";
 import i3 from "../../assets/i3.jpg";
 import r1 from "../../assets/r1.jpg";
@@ -18,8 +18,10 @@ function AllWeddingDresses() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [appliedFilters, setAppliedFilters] = useState({});
+  const [favorites, setFavorites] = useState(() => JSON.parse(localStorage.getItem('favorites')) || []);
+  const [popupMessage, setPopupMessage] = useState({ text: "", isVisible: false, type: "" });
   const filterRef = useRef(null);
-  const location = useLocation(); // Get current URL path
+  const location = useLocation();
 
   const filters = [
     "All", "Siren", "Boho", "Winter", "Simple", "Long-Sleeve", "Princess",
@@ -35,6 +37,7 @@ function AllWeddingDresses() {
       name: "Wedding Dress 1",
       price: "$499.99",
       image: i2,
+      description: "Elegant wedding dress with modern design",
       category: ["Half-Sleeve", "Elegant", "A-Line", "V-neck", "Floor-length", "Lace", "Romantic", "Simple"],
       relatedImages: [i2, i3, r1],
     },
@@ -43,6 +46,7 @@ function AllWeddingDresses() {
       name: "Wedding Dress 2",
       price: "$599.99",
       image: r2,
+      description: "Elegant wedding dress with modern design",
       category: ["Princess", "Modern", "Sweetheart", "Tea-length", "Satin", "Glamorous", "Curvy"],
       relatedImages: [r2, p1, i3],
     },
@@ -51,6 +55,7 @@ function AllWeddingDresses() {
       name: "Wedding Dress 3",
       price: "$449.99",
       image: p2,
+      description: "Elegant wedding dress with modern design",
       category: ["A-Line", "Vintage", "Scoop", "Knee-length", "Chiffon", "Boho", "Winter"],
       relatedImages: [p2, p3, i2],
     },
@@ -104,7 +109,33 @@ function AllWeddingDresses() {
     if (filterRef.current) filterRef.current.scrollBy({ left: 150, behavior: "smooth" });
   };
 
-  // Framer Motion Variants
+  const toggleFavorite = (dress) => {
+    const isFavorite = favorites.some((fav) => fav.id === dress.id);
+    let updatedFavorites;
+    
+    if (isFavorite) {
+      updatedFavorites = favorites.filter((fav) => fav.id !== dress.id);
+      setPopupMessage({ text: "Removed from Favorites!", isVisible: true, type: "remove" });
+    } else {
+      updatedFavorites = [...favorites, {
+        id: dress.id,
+        name: dress.name,
+        price: dress.price,
+        image: dress.image,
+        description: dress.description
+      }];
+      setPopupMessage({ text: "Added to Favorites!", isVisible: true, type: "add" });
+    }
+    
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    
+    // Hide popup after 2 seconds
+    setTimeout(() => {
+      setPopupMessage((prev) => ({ ...prev, isVisible: false }));
+    }, 2000);
+  };
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
@@ -115,9 +146,23 @@ function AllWeddingDresses() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
   };
 
+  const popupVariants = {
+    hidden: { opacity: 0, y: -50 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -50,
+      transition: { duration: 0.3 }
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-4 md:p-6 pt-20 md:pt-24"> {/* Increased pt-16 to pt-20 for mobile */}
-      {/* Breadcrumb with Current URL */}
+    <div className="min-h-screen bg-gray-100 p-4 md:p-6 pt-20 md:pt-24">
+      {/* Breadcrumb */}
       <motion.div
         className="w-full max-w-[95%] md:max-w-[98%] mx-auto mb-4 z-10"
         initial={{ opacity: 0, y: -20 }}
@@ -145,7 +190,7 @@ function AllWeddingDresses() {
         WEDDING DRESSES
       </motion.h1>
 
-      {/* Filters Row with Arrows on Right */}
+      {/* Filters Row */}
       <div className="w-full max-w-[95%] md:max-w-[98%] mx-auto mb-6 md:mb-8 relative">
         <div className="flex items-center gap-2 justify-between">
           <div
@@ -179,7 +224,6 @@ function AllWeddingDresses() {
             </button>
           </div>
         </div>
-        {/* Applied Filters */}
         {Object.keys(appliedFilters).length > 0 && (
           <motion.div
             className="mt-4 flex flex-wrap gap-2"
@@ -201,7 +245,7 @@ function AllWeddingDresses() {
         )}
       </div>
 
-      {/* Filter Sidebar Toggle and Recommended Dropdown */}
+      {/* Filter Sidebar Toggle */}
       <motion.div
         className="w-full max-w-[95%] md:max-w-[98%] mx-auto mb-6 md:mb-5 flex flex-col md:flex-row justify-between items-center gap-4"
         initial={{ opacity: 0 }}
@@ -226,14 +270,13 @@ function AllWeddingDresses() {
         </div>
       </motion.div>
 
-      {/* Filter Sidebar */}
       <FilterSidebar
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApplyFilters={handleApplyFilters}
       />
 
-      {/* Dresses Grid with Navigation */}
+      {/* Dresses Grid */}
       <motion.div
         className="w-full max-w-[95%] md:max-w-[98%] mx-auto relative"
         variants={containerVariants}
@@ -242,7 +285,7 @@ function AllWeddingDresses() {
       >
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
           {visibleDresses.map((dress) => (
-            <motion.div key={dress.id} variants={itemVariants}>
+            <motion.div key={dress.id} variants={itemVariants} className="relative">
               <Link to={`/dress/${dress.id}`} state={{ relatedImages: dress.relatedImages }}>
                 <img
                   src={dress.image}
@@ -251,8 +294,20 @@ function AllWeddingDresses() {
                 />
               </Link>
               <h2 className="text-base md:text-lg font-semibold">{dress.name}</h2>
-              <p className="text-gray-600 text-xs md:text-sm mb-2">Elegant wedding dress with modern design</p>
-              <p className="text-gray-600 text-sm md:text-base">{dress.price}</p>
+              <p className="text-gray-600 text-xs md:text-sm mb-2">{dress.description}</p>
+              <div className="flex justify-between items-center">
+                <p className="text-gray-600 text-sm md:text-base">{dress.price}</p>
+                <motion.button
+                  onClick={() => toggleFavorite(dress)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Heart 
+                    size={20} 
+                    className={favorites.some(fav => fav.id === dress.id) ? "fill-red-500 text-red-500" : "text-gray-600"}
+                  />
+                </motion.button>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -274,7 +329,7 @@ function AllWeddingDresses() {
         )}
       </motion.div>
 
-      {/* Videos Section - Autoplay */}
+      {/* Videos Section */}
       <motion.div
         className="w-full max-w-[95%] md:max-w-[98%] mx-auto mt-6 md:mt-8 grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4"
         variants={containerVariants}
@@ -311,7 +366,7 @@ function AllWeddingDresses() {
         {baseDressData.map((dress) => {
           const newId = dress.id + (currentPage - 1) * 3;
           return (
-            <motion.div key={newId} variants={itemVariants}>
+            <motion.div key={newId} variants={itemVariants} className="relative">
               <Link to={`/dress/${newId}`} state={{ relatedImages: dress.relatedImages }}>
                 <img
                   src={dress.image}
@@ -320,8 +375,20 @@ function AllWeddingDresses() {
                 />
               </Link>
               <h2 className="text-base md:text-lg font-semibold">{dress.name}</h2>
-              <p className="text-gray-600 text-xs md:text-sm mb-2">Elegant wedding dress with modern design</p>
-              <p className="text-gray-600 text-sm md:text-base">{dress.price}</p>
+              <p className="text-gray-600 text-xs md:text-sm mb-2">{dress.description}</p>
+              <div className="flex justify-between items-center">
+                <p className="text-gray-600 text-sm md:text-base">{dress.price}</p>
+                <motion.button
+                  onClick={() => toggleFavorite({ ...dress, id: newId })}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Heart 
+                    size={20} 
+                    className={favorites.some(fav => fav.id === newId) ? "fill-red-500 text-red-500" : "text-gray-600"}
+                  />
+                </motion.button>
+              </div>
             </motion.div>
           );
         })}
@@ -356,12 +423,9 @@ function AllWeddingDresses() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
       >
-        {/* 2-3 Line Paragraph */}
         <p className="text-[10px] md:text-base mb-4">
           Discover the perfect wedding dress for your special day with our curated collection. From timeless classics to modern designs, we offer a variety of styles to suit every bride’s vision. Explore elegance and sophistication in every detail.
         </p>
-
-        {/* Two Column Paragraphs */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-6">
           <div>
             <p className="text-[10px] md:text-base">
@@ -374,9 +438,7 @@ function AllWeddingDresses() {
             </p>
           </div>
         </div>
-
-        {/* Relevant Links */}
-        <div className="md:mt-4 mt-2 flex  flex-row gap-4 text-[8px] md:text-base">
+        <div className="md:mt-4 mt-2 flex flex-row gap-4 text-[8px] md:text-base">
           <Link to="/wedding-dresses/styles" className="text-gray-600 underline hover:text-gray-800">
             Wedding Dress Styles
           </Link>
@@ -386,6 +448,27 @@ function AllWeddingDresses() {
           <Link to="/wedding-dresses/tips" className="text-gray-600 underline hover:text-gray-800">
             Dress Tips & Tricks
           </Link>
+        </div>
+      </motion.div>
+
+      {/* Popup Notification */}
+      <motion.div
+        className="fixed top-4 right-4 z-50"
+        initial="hidden"
+        animate={popupMessage.isVisible ? "visible" : "hidden"}
+        exit="exit"
+        variants={popupVariants}
+      >
+        <div 
+          className={`bg-white shadow-lg rounded-lg p-4 flex items-center gap-3 border-l-4 ${
+            popupMessage.type === "add" ? "border-green-500" : "border-red-500"
+          }`}
+        >
+          <Heart 
+            size={20} 
+            className={popupMessage.type === "add" ? "text-green-500" : "text-red-500"} 
+          />
+          <p className="text-sm md:text-base text-gray-800">{popupMessage.text}</p>
         </div>
       </motion.div>
 

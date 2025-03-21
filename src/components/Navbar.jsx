@@ -14,6 +14,7 @@ function Navbar({ onSidebarToggle }) {
   const [selectedLang, setSelectedLang] = useState("en");
   const [showWeddingSubmenu, setShowWeddingSubmenu] = useState(false);
   const [activeMenu, setActiveMenu] = useState(null);
+  const [favoritesCount, setFavoritesCount] = useState(0);
   const location = useLocation();
 
   useEffect(() => {
@@ -46,6 +47,10 @@ function Navbar({ onSidebarToggle }) {
       setTranslateReady(true);
       window.googleTranslateElementInit();
     }
+
+    // Load favorites count from localStorage
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    setFavoritesCount(favorites.length);
 
     return () => {
       const script = document.querySelector(`script[src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"]`);
@@ -89,6 +94,7 @@ function Navbar({ onSidebarToggle }) {
   };
 
   const toggleMenu = (menuName) => {
+    console.log("Toggling menu:", menuName); // Debug log
     setActiveMenu(activeMenu === menuName ? null : menuName);
   };
 
@@ -141,7 +147,6 @@ function Navbar({ onSidebarToggle }) {
   };
 
   const isHome = location.pathname === "/";
-
   const menuItems = [
     { name: "WEDDING DRESSES", subItems: ["All Wedding Dresses", "New In"], images: [i1, i2] },
     { name: "CEREMONIAL DRESS", subItems: ["Formal Gowns", "Evening Wear"], images: [i2, i3] },
@@ -185,7 +190,6 @@ function Navbar({ onSidebarToggle }) {
         }}
       >
         <div className="flex items-center order-1">
-          {/* Mobile Hamburger Menu */}
           <motion.button 
             onClick={() => setIsOpen(true)} 
             className="md:hidden flex items-center" 
@@ -196,29 +200,26 @@ function Navbar({ onSidebarToggle }) {
               <span className="w-4 h-[2px] bg-current"></span>
               <span className="w-4 h-[2px] bg-current"></span>
             </div>
-      
           </motion.button>
 
-          {/* Brand Name */}
           <h1 
-            className={`text-lg md:text-2xl font-['Brush_Script_MT'] ml-2 md:ml-0 ${
+            className={`brandname text-lg md:text-2xl font-['Brush_Script_MT'] ml-2 md:ml-0 ${
               activeMenu || (!isHome || scrolled) ? 'text-black' : 'text-white'
             }`}
           >
             ATELIER-KATALIA
           </h1>
 
-          {/* Desktop Menu Items */}
           <div className="hidden md:flex items-center gap-6 ml-6">
             {menuItems.map((item) => (
               <motion.div 
                 key={item.name} 
-                className="relative "
+                className="relative"
                 whileHover={{ scale: 1.05 }}
               >
                 <button 
                   onClick={() => toggleMenu(item.name)}
-                  className={`text-base cursor-pointer ${activeMenu || (!isHome || scrolled) ? 'text-black' : 'text-white'} ${activeMenu === item.name ? 'underline' : ''}`}
+                  className={`text-sm subheading cursor-pointer ${activeMenu || (!isHome || scrolled) ? 'text-black' : 'text-white'} ${activeMenu === item.name ? 'underline' : ''}`}
                 >
                   {item.name}
                 </button>
@@ -233,7 +234,14 @@ function Navbar({ onSidebarToggle }) {
             <MapPin size={16} className={`md:size-5 ${activeMenu || (!isHome || scrolled) ? 'text-black/80' : 'text-white/80'}`} />
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-            <Heart size={16} className={`md:size-5 ${activeMenu || (!isHome || scrolled) ? 'text-black/80' : 'text-white/80'}`} />
+            <Link to="/favorites" className="relative">
+              <Heart size={16} className={`md:size-5 ${activeMenu || (!isHome || scrolled) ? 'text-black/80' : 'text-white/80'}`} />
+              {favoritesCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {favoritesCount}
+                </span>
+              )}
+            </Link>
           </motion.div>
           <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
             <User size={16} className={`md:size-5 ${activeMenu || (!isHome || scrolled) ? 'text-black/80' : 'text-white/80'}`} />
@@ -252,7 +260,7 @@ function Navbar({ onSidebarToggle }) {
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="hidden md:block fixed top-[70px] left-0 w-full border-t-1  bg-white shadow-lg z-[60] px-6 py-2 my-2"
+            className="hidden md:block fixed top-[70px] left-0 w-full bg-white shadow-lg z-[60] px-6 py-2 my-2"
           >
             {menuItems.map((item) => (
               activeMenu === item.name && (
@@ -261,7 +269,6 @@ function Navbar({ onSidebarToggle }) {
                   className="flex"
                   variants={dropdownItemVariants}
                 >
-                  {/* Left Side Images */}
                   <motion.div 
                     className="w-1/3 flex gap-[1.5px]"
                     initial={{ opacity: 0, x: -20 }}
@@ -271,7 +278,6 @@ function Navbar({ onSidebarToggle }) {
                     <img src={item.images[0]} alt={`${item.name} 1`} className="w-1/2 h-72 object-cover" />
                     <img src={item.images[1]} alt={`${item.name} 2`} className="w-1/2 h-72 object-cover" />
                   </motion.div>
-                  {/* Right Side Links */}
                   <motion.div 
                     className="w-2/3 grid grid-cols-4 gap-4 pl-6"
                     variants={dropdownItemVariants}

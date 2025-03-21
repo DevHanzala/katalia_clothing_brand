@@ -19,38 +19,46 @@ function DressDetail() {
 
   const dressData = {
     1: {
+      id: 1,
       name: "Wedding Dress 1",
       price: "$499.99",
       description: "Detailed description of Wedding Dress 1.",
+      image: i2, // Added single image for favorites
       images: [i2, i3, r1],
       category: ["Half-Sleeve", "Elegant", "A-Line", "V-neck", "Floor-length", "Lace", "Romantic", "Simple"],
     },
     2: {
+      id: 2,
       name: "Wedding Dress 2",
       price: "$599.99",
       description: "Detailed description of Wedding Dress 2.",
+      image: r2,
       images: [r2, p1, i3],
       category: ["Princess", "Modern", "Sweetheart", "Tea-length", "Satin", "Glamorous", "Curvy"],
     },
     3: {
+      id: 3,
       name: "Wedding Dress 3",
       price: "$449.99",
       description: "Detailed description of Wedding Dress 3.",
+      image: p2,
       images: [p2, p3, i2],
       category: ["A-Line", "Vintage", "Scoop", "Knee-length", "Chiffon", "Boho", "Winter"],
     },
-    4: { name: "Wedding Dress 1", price: "$499.99", description: "Detailed description of Wedding Dress 1.", images: [i2, i3, r1], category: ["Half-Sleeve", "Elegant"] },
-    5: { name: "Wedding Dress 2", price: "$599.99", description: "Detailed description of Wedding Dress 2.", images: [r2, p1, i3], category: ["Princess", "Modern"] },
-    6: { name: "Wedding Dress 3", price: "$449.99", description: "Detailed description of Wedding Dress 3.", images: [p2, p3, i2], category: ["A-Line", "Vintage"] },
-    7: { name: "Wedding Dress 1", price: "$499.99", description: "Detailed description of Wedding Dress 1.", images: [i2, i3, r1], category: ["Half-Sleeve", "Elegant"] },
-    8: { name: "Wedding Dress 2", price: "$599.99", description: "Detailed description of Wedding Dress 2.", images: [r2, p1, i3], category: ["Princess", "Modern"] },
-    9: { name: "Wedding Dress 3", price: "$449.99", description: "Detailed description of Wedding Dress 3.", images: [p2, p3, i2], category: ["A-Line", "Vintage"] },
+    4: { id: 4, name: "Wedding Dress 1", price: "$499.99", description: "Detailed description of Wedding Dress 1.", image: i2, images: [i2, i3, r1], category: ["Half-Sleeve", "Elegant"] },
+    5: { id: 5, name: "Wedding Dress 2", price: "$599.99", description: "Detailed description of Wedding Dress 2.", image: r2, images: [r2, p1, i3], category: ["Princess", "Modern"] },
+    6: { id: 6, name: "Wedding Dress 3", price: "$449.99", description: "Detailed description of Wedding Dress 3.", image: p2, images: [p2, p3, i2], category: ["A-Line", "Vintage"] },
+    7: { id: 7, name: "Wedding Dress 1", price: "$499.99", description: "Detailed description of Wedding Dress 1.", image: i2, images: [i2, i3, r1], category: ["Half-Sleeve", "Elegant"] },
+    8: { id: 8, name: "Wedding Dress 2", price: "$599.99", description: "Detailed description of Wedding Dress 2.", image: r2, images: [r2, p1, i3], category: ["Princess", "Modern"] },
+    9: { id: 9, name: "Wedding Dress 3", price: "$449.99", description: "Detailed description of Wedding Dress 3.", image: p2, images: [p2, p3, i2], category: ["A-Line", "Vintage"] },
   };
 
   const defaultDress = {
+    id: dressId,
     name: `Wedding Dress ${dressId}`,
     price: "$499.99",
     description: "Default description.",
+    image: i3,
     images: [i3],
     category: ["Simple"],
   };
@@ -60,6 +68,14 @@ function DressDetail() {
   const [mainImage, setMainImage] = useState(displayImages[0]);
   const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   const [isFaqOpen, setIsFaqOpen] = useState(false);
+  const [favorites, setFavorites] = useState([]);
+  const [popupMessage, setPopupMessage] = useState({ text: "", isVisible: false, type: "" });
+
+  useEffect(() => {
+    // Load favorites from localStorage on mount
+    const storedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    setFavorites(storedFavorites);
+  }, []);
 
   useEffect(() => {
     console.log("ID:", dressId, "Current Dress:", currentDress, "Display Images:", displayImages, "Main Image:", mainImage);
@@ -72,6 +88,32 @@ function DressDetail() {
     }).catch(() => {
       alert("Failed to copy URL.");
     });
+  };
+
+  const toggleFavorite = () => {
+    const isFavorite = favorites.some((fav) => fav.id === currentDress.id);
+    let updatedFavorites;
+
+    if (isFavorite) {
+      updatedFavorites = favorites.filter((fav) => fav.id !== currentDress.id);
+      setPopupMessage({ text: "Removed from Favorites!", isVisible: true, type: "remove" });
+    } else {
+      updatedFavorites = [...favorites, { 
+        id: currentDress.id, 
+        name: currentDress.name, 
+        price: currentDress.price, 
+        description: currentDress.description, 
+        image: currentDress.image 
+      }];
+      setPopupMessage({ text: "Added to Favorites!", isVisible: true, type: "add" });
+    }
+
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+
+    setTimeout(() => {
+      setPopupMessage((prev) => ({ ...prev, isVisible: false }));
+    }, 2000);
   };
 
   const handleCarouselClick = (dressId) => {
@@ -87,6 +129,20 @@ function DressDetail() {
 
   const scrollCarouselRight = () => {
     if (carouselRef.current) carouselRef.current.scrollBy({ left: 200, behavior: "smooth" });
+  };
+
+  const popupVariants = {
+    hidden: { opacity: 0, y: -50 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.3, ease: "easeOut" }
+    },
+    exit: { 
+      opacity: 0, 
+      y: -50,
+      transition: { duration: 0.3 }
+    }
   };
 
   return (
@@ -114,7 +170,7 @@ function DressDetail() {
         {/* Main Layout */}
         <div className="flex flex-col md:flex-row gap-2 md:gap-4 mb-8">
           {/* Mobile: Main Image First */}
-          <div className="w-full md:w-6/12 order-1 md:order-2"> {/* Main image in center on desktop */}
+          <div className="w-full md:w-6/12 order-1 md:order-2">
             <img
               src={mainImage}
               alt={currentDress.name}
@@ -123,7 +179,7 @@ function DressDetail() {
           </div>
 
           {/* Mobile: Thumbnails Below Main Image */}
-          <div className="w-full md:w-1/6 flex flex-row md:flex-col gap-2 md:gap-3 justify-center md:justify-start order-2 md:order-1"> {/* Thumbnails on left on desktop */}
+          <div className="w-full md:w-1/6 flex flex-row md:flex-col gap-2 md:gap-3 justify-center md:justify-start order-2 md:order-1">
             {displayImages.slice(0, 2).map((img, index) => (
               <img
                 key={index}
@@ -138,7 +194,7 @@ function DressDetail() {
           </div>
 
           {/* Right Content */}
-          <div className="w-full md:w-5/12 flex flex-col gap-4 order-3"> {/* Increased width on desktop */}
+          <div className="w-full md:w-5/12 flex flex-col gap-4 order-3">
             <p className="text-xl font-semibold">{currentDress.price}</p>
             <div className="flex flex-wrap gap-2">
               {currentDress.category.map((cat) => (
@@ -151,9 +207,18 @@ function DressDetail() {
               <button onClick={handleShare} className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
                 <Share2 size={20} /> Share
               </button>
-              <button className="flex items-center gap-2 text-gray-600 hover:text-red-600">
-                <Heart size={20} /> Favorite
-              </button>
+              <motion.button 
+                onClick={toggleFavorite} 
+                className="flex items-center gap-2 text-gray-600 hover:text-red-600"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Heart 
+                  size={20} 
+                  className={favorites.some(fav => fav.id === currentDress.id) ? "fill-red-500 text-red-500" : ""}
+                /> 
+                Favorite
+              </motion.button>
             </div>
             <button className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
               Book Appointment
@@ -244,6 +309,27 @@ function DressDetail() {
             </button>
           </div>
         </div>
+
+        {/* Popup Notification */}
+        <motion.div
+          className="fixed top-4 right-4 z-50"
+          initial="hidden"
+          animate={popupMessage.isVisible ? "visible" : "hidden"}
+          exit="exit"
+          variants={popupVariants}
+        >
+          <div 
+            className={`bg-white shadow-lg rounded-lg p-4 flex items-center gap-3 border-l-4 ${
+              popupMessage.type === "add" ? "border-green-500" : "border-red-500"
+            }`}
+          >
+            <Heart 
+              size={20} 
+              className={popupMessage.type === "add" ? "text-green-500" : "text-red-500"} 
+            />
+            <p className="text-sm md:text-base text-gray-800">{popupMessage.text}</p>
+          </div>
+        </motion.div>
       </div>
 
       <style jsx>{`

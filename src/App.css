@@ -1,1 +1,18 @@
 @import "tailwindcss";
+/* Set default font for the whole website */
+body {
+  font-family: "Raleway", "poppins"; 
+}
+
+/* Custom font classes */
+.subheading {
+  font-family: "Montserrat", Arial,;
+}
+
+.brandname {
+  font-family: Arial, sans-serif;
+}
+
+/* .raleway {
+  font-family: "Raleway", Arial, sans-serif;
+} */

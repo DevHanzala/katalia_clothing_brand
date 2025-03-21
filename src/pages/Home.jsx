@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Instagram, Heart } from "lucide-react";
+import { Instagram, Heart, X } from "lucide-react";
 import v1 from '../assets/v1.mp4';
 import v2 from '../assets/v2.mp4';
 import i2 from '../assets/i2.jpg';
@@ -10,45 +10,18 @@ import r2 from '../assets/r2.jpg';
 import p1 from '../assets/p1.jpg';
 import p2 from '../assets/p2.jpg';
 import p3 from '../assets/p3.jpg';
-import casualWomen from '../assets/i2.jpg'; // Replace with your actual image
-import weddingWomen from '../assets/p3.jpg'; // Replace with your actual image
+import casualWomen from '../assets/i2.jpg';
+import weddingWomen from '../assets/p3.jpg';
 
 function Home() {
-  // Main carousel items: 1 video/image per frame
   const mainCarouselItems = [
-    {
-      type: "video", // First frame: 1 video
-      src: v1,
-      text: "Welcome to Atelier-Katalia\nExperience luxury like never before\nCrafted with passion",
-      buttonText: "Explore Now",
-    },
-    {
-      type: "image", // Second frame: 1 image
-      src: i2,
-      text: "Discover Our Collection\nTimeless designs await you\nPerfect for every occasion",
-      buttonText: "Shop Now",
-    },
-    {
-      type: "image", // Third frame: 1 image
-      src: i3,
-      text: "New Arrivals\nFresh styles just dropped\nBe the first to own",
-      buttonText: "View More",
-    },
-    {
-      type: "image", // Fourth frame: 1 image
-      src: p2,
-      text: "Elegant Styles\nPerfect for any event\nTimeless beauty",
-      buttonText: "Explore More",
-    },
-    {
-      type: "video", // Last frame: Men's video
-      src: v2,
-      text: "Men's Luxury Unveiled\nSophisticated style for gentlemen\nTimeless elegance",
-      buttonText: "Discover Menswear",
-    },
+    { type: "video", src: v1, text: "Welcome to Atelier-Katalia\nExperience luxury like never before\nCrafted with passion", buttonText: "Explore Now" },
+    { type: "image", src: i2, text: "Discover Our Collection\nTimeless designs await you\nPerfect for every occasion", buttonText: "Shop Now" },
+    { type: "image", src: i3, text: "New Arrivals\nFresh styles just dropped\nBe the first to own", buttonText: "View More" },
+    { type: "image", src: p2, text: "Elegant Styles\nPerfect for any event\nTimeless beauty", buttonText: "Explore More" },
+    { type: "video", src: v2, text: "Men's Luxury Unveiled\nSophisticated style for gentlemen\nTimeless elegance", buttonText: "Discover Menswear" },
   ];
 
-  // Event carousel items
   const eventCarouselItems = [
     { src: i3, text: "Fashion Show 2025", date: "20/3/25 - 25/3/25" },
     { src: r1, text: "Art Gallery Opening", date: "15/4/25 - 20/4/25" },
@@ -59,7 +32,6 @@ function Home() {
     { src: p3, text: "Summer Pop-up Event", date: "20/9/25 - 25/9/25" },
   ];
 
-  // Bride carousel items
   const braideCarouselItems = [
     { src: p1, brand: "Bride 1" },
     { src: i3, brand: "Bride 2" },
@@ -68,38 +40,32 @@ function Home() {
     { src: r2, brand: "Bride 5" },
   ];
 
-  // State and refs
   const [mainIndex, setMainIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedBrideIndex, setSelectedBrideIndex] = useState(0);
   const eventCarouselRef = useRef(null);
   const braideCarouselRef = useRef(null);
   const dragConstraintsRef = useRef(null);
 
-  // Automatic scroll for main carousel
   useEffect(() => {
     const interval = setInterval(() => {
       setMainIndex((prev) => (prev + 1) % mainCarouselItems.length);
-    }, 5000); // 5 seconds interval
+    }, 5000);
     return () => clearInterval(interval);
   }, [mainCarouselItems.length]);
 
-  // Variants for main carousel content animation
   const contentVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.95 },
+    hidden: { opacity: 0 },
     visible: { 
-      opacity: 1, 
-      y: 0,
-      scale: 1,
-      transition: { duration: 1, ease: "easeOut" } // Content transition
+      opacity: 1,
+      transition: { duration: 1.5, ease: "easeInOut" }
     },
     exit: { 
-      opacity: 0, 
-      y: -50,
-      scale: 0.95,
-      transition: { duration: 0.6 } // Slightly slower exit
+      opacity: 0,
+      transition: { duration: 1.5, ease: "easeInOut" }
     }
   };
 
-  // Variants for event carousel items
   const eventItemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -109,7 +75,6 @@ function Home() {
     }
   };
 
-  // Variants for event carousel child elements
   const childVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -119,7 +84,6 @@ function Home() {
     }
   };
 
-  // Variants for bride carousel items
   const braideItemVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: { 
@@ -129,7 +93,6 @@ function Home() {
     }
   };
 
-  // Variants for bride carousel overlay
   const overlayVariants = {
     hidden: { opacity: 0 },
     visible: { 
@@ -138,7 +101,20 @@ function Home() {
     }
   };
 
-  // Scroll functions for horizontal carousels
+  const modalVariants = {
+    hidden: { opacity: 0, y: "-100vh" },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: { duration: 0.5, ease: "easeOut" }
+    },
+    exit: { 
+      opacity: 0, 
+      y: "-100vh",
+      transition: { duration: 0.3 }
+    }
+  };
+
   const scrollLeft = (ref) => {
     if (ref.current) {
       ref.current.scrollBy({ left: -300, behavior: 'smooth' });
@@ -151,14 +127,21 @@ function Home() {
     }
   };
 
-  // Handle drag end for main carousel
-  const handleDragEnd = (event, info) => {
-    const threshold = 50;
-    if (info.offset.x < -threshold) {
-      setMainIndex((prev) => (prev + 1) % mainCarouselItems.length);
-    } else if (info.offset.x > threshold) {
-      setMainIndex((prev) => (prev - 1 + mainCarouselItems.length) % mainCarouselItems.length);
-    }
+  const openModal = (index) => {
+    setSelectedBrideIndex(index);
+    setIsModalOpen(true);
+  };
+
+  const nextBride = () => {
+    setSelectedBrideIndex((prev) => 
+      (prev + 1) % braideCarouselItems.length
+    );
+  };
+
+  const prevBride = () => {
+    setSelectedBrideIndex((prev) => 
+      (prev - 1 + braideCarouselItems.length) % braideCarouselItems.length
+    );
   };
 
   return (
@@ -168,18 +151,12 @@ function Home() {
         <AnimatePresence mode="wait">
           <motion.div
             key={mainIndex}
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 3, ease: "easeOut" }} // 3-second frame transition
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
             className="absolute inset-0"
-            drag="x"
-            dragConstraints={{ left: -100, right: 100 }}
-            dragElastic={0.2}
-            onDragEnd={handleDragEnd}
-            dragMomentum={false}
           >
-            {/* Desktop and Mobile View: Single Video/Image per Frame */}
             {mainCarouselItems[mainIndex].type === "video" ? (
               <video
                 src={mainCarouselItems[mainIndex].src}
@@ -196,7 +173,6 @@ function Home() {
               />
             )}
 
-            {/* Overlay Text and Button */}
             <div className="absolute inset-0 flex items-center justify-center flex-col text-white bg-black/20">
               <motion.p
                 variants={contentVariants}
@@ -222,7 +198,6 @@ function Home() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Carousel Dots */}
         <div className="absolute md:bottom-12 bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3">
           {mainCarouselItems.map((_, index) => (
             <button
@@ -236,7 +211,7 @@ function Home() {
         </div>
       </div>
 
-      {/* Side-by-Side Images (Women’s Casual and Wedding) */}
+      {/* Side-by-Side Images */}
       <div className="flex flex-col md:flex-row w-full">
         <div className="w-full md:w-1/2 h-[80vh] md:h-[90vh] relative">
           <img src={casualWomen} alt="Casual Women" className="w-full h-full object-cover" />
@@ -412,7 +387,8 @@ function Home() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="flex-shrink-0 w-56 md:w-80 snap-center mx-[1.5px] relative"
+                className="flex-shrink-0 w-56 md:w-80 snap-center mx-[1.5px] relative cursor-pointer"
+                onClick={() => openModal(index)}
               >
                 <img src={item.src} alt={`Braide ${index}`} className="w-full md:h-[75vh] h-[65vh] object-cover" />
                 <motion.div
@@ -423,24 +399,16 @@ function Home() {
                 >
                   <motion.p 
                     className="text-xl font-semibold"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 }}
+                    variants={childVariants}
                   >
                     {item.brand}
                   </motion.p>
                   <motion.div 
                     className="flex gap-4 mt-4"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
+                    variants={childVariants}
                   >
-                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                      <Instagram size={24} />
-                    </motion.div>
-                    <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }}>
-                      <Heart size={24} />
-                    </motion.div>
+                    <Instagram size={24} />
+                    <Heart size={24} />
                   </motion.div>
                 </motion.div>
               </motion.div>
@@ -453,6 +421,77 @@ function Home() {
           }
         `}</style>
       </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black/70 z-50 flex md:items-center items-start justify-center p-4"
+            variants={modalVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            <div className="bg-white rounded-lg w-full max-w-2xl p-6 relative">
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute top-4 right-4"
+              >
+                <X size={24} />
+              </button>
+
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="md:w-2/3">
+                  <img
+                    src={braideCarouselItems[selectedBrideIndex].src}
+                    alt={braideCarouselItems[selectedBrideIndex].brand}
+                    className="w-full md:h-[70vh] h-[40vh] object-cover"
+                  />
+                </div>
+                <div className="md:w-1/4   flex flex-col gap-4">
+                  <div>
+                    <img
+                      src={braideCarouselItems[(selectedBrideIndex + 1) % braideCarouselItems.length].src}
+                      alt="Next bride"
+                      className="md:w-full mx-auto md:h-44 h-24 object-cover"
+                    />
+                    <p className="md:mt-1 text-sm text-center md:text-left">
+                      {braideCarouselItems[(selectedBrideIndex + 1) % braideCarouselItems.length].brand}
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="md:text-xl md:font-semibold">
+                      {braideCarouselItems[selectedBrideIndex].brand}
+                    </h3>
+                    <p className="text-gray-600 md:text-[11px] text-[9px] md:mt-1">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
+                    </p>
+                    <div className="flex gap-4 md:mt-2 mt-1">
+                      <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
+                        <Instagram size={24} className="cursor-pointer hover:scale-110" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={prevBride}
+                className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 text-4xl"
+              >
+                ←
+              </button>
+              <button
+                onClick={nextBride}
+                className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 text-4xl"
+              >
+                →
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Fixed Book Appointment Section */}
       <motion.div
