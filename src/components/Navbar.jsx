@@ -13,6 +13,8 @@ function Navbar({ onSidebarToggle }) {
   const [translateReady, setTranslateReady] = useState(false);
   const [selectedLang, setSelectedLang] = useState("en");
   const [showWeddingSubmenu, setShowWeddingSubmenu] = useState(false);
+  const [showSilhouetteSubmenu, setShowSilhouetteSubmenu] = useState(false);
+  const [showStyleSubmenu, setShowStyleSubmenu] = useState(false); // New state for Style submenu
   const [activeMenu, setActiveMenu] = useState(null);
   const [favoritesCount, setFavoritesCount] = useState(0);
   const location = useLocation();
@@ -48,7 +50,6 @@ function Navbar({ onSidebarToggle }) {
       window.googleTranslateElementInit();
     }
 
-    // Load favorites count from localStorage
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     setFavoritesCount(favorites.length);
 
@@ -94,7 +95,7 @@ function Navbar({ onSidebarToggle }) {
   };
 
   const toggleMenu = (menuName) => {
-    console.log("Toggling menu:", menuName); // Debug log
+    console.log("Toggling menu:", menuName);
     setActiveMenu(activeMenu === menuName ? null : menuName);
   };
 
@@ -148,7 +149,14 @@ function Navbar({ onSidebarToggle }) {
 
   const isHome = location.pathname === "/";
   const menuItems = [
-    { name: "WEDDING DRESSES", subItems: ["All Wedding Dresses", "New In"], images: [i1, i2] },
+    {
+      name: "WEDDING DRESSES",
+      subItems: [
+        ["All Wedding Dresses", "New In", "Siren", "Princess", "A-Line", "Curvy"], // First column
+        ["Winter", "Boho", "Civil Marriage", "Simple"] // Second column
+      ],
+      images: [i1, i2]
+    },
     { name: "CEREMONIAL DRESS", subItems: ["Formal Gowns", "Evening Wear"], images: [i2, i3] },
     { name: "GUEST DRESS", subItems: ["Party Dresses", "Casual Chic"], images: [i3, i1] },
     { name: "INSIDE KATALIA", subItems: ["Our Story", "Design Process"], images: [i1, i3] },
@@ -275,28 +283,80 @@ function Navbar({ onSidebarToggle }) {
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
                   >
-                    <img src={item.images[0]} alt={`${item.name} 1`} className="w-1/2 h-72 object-cover" />
-                    <img src={item.images[1]} alt={`${item.name} 2`} className="w-1/2 h-72 object-cover" />
+                    <img src={item.images[0]} alt={`${item.name} 1`} className="w-1/2 h-72 object-fill" />
+                    <img src={item.images[1]} alt={`${item.name} 2`} className="w-1/2 h-72 object-fill" />
                   </motion.div>
                   <motion.div 
-                    className="w-2/3 grid grid-cols-4 gap-4 pl-6"
+                    className="w-2/3 flex pl-6 gap-8" // Adjusted for two columns
                     variants={dropdownItemVariants}
                   >
-                    {item.subItems.map((subItem) => (
-                      <motion.div
-                        key={subItem}
-                        whileHover={{ scale: 1.05 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <Link 
-                          to={`/${item.name.toLowerCase().replace(" ", "-")}/${subItem.toLowerCase().replace(" ", "-")}`} 
-                          className="text-base text-black hover:underline cursor-pointer"
-                          onClick={() => setActiveMenu(null)}
+                    {/* First Column */}
+                    <div className="flex flex-col">
+                      {item.name === "WEDDING DRESSES" && item.subItems[0].map((subItem) => (
+                        <motion.div
+                          key={subItem}
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.2 }}
                         >
-                          {subItem}
-                        </Link>
-                      </motion.div>
-                    ))}
+                          <Link 
+                            to={
+                              subItem === "All Wedding Dresses" ? "/wedding-dresses/all" :
+                              subItem === "New In" ? "/wedding-dresses/new-in" :
+                              subItem === "Siren" ? "/wedding-dresses/siren" :
+                              subItem === "Princess" ? "/wedding-dresses/princess" :
+                              subItem === "A-Line" ? "/wedding-dresses/a-line" :
+                              subItem === "Curvy" ? "/wedding-dresses/curvy" :
+                              `/${item.name.toLowerCase().replace(" ", "-")}/${subItem.toLowerCase().replace(" ", "-")}`
+                            } 
+                            className="text-base text-black hover:underline cursor-pointer mb-2"
+                            onClick={() => setActiveMenu(null)}
+                          >
+                            {subItem}
+                          </Link>
+                        </motion.div>
+                      ))}
+                      {item.name !== "WEDDING DRESSES" && item.subItems.map((subItem) => (
+                        <motion.div
+                          key={subItem}
+                          whileHover={{ scale: 1.05 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Link 
+                            to={`/${item.name.toLowerCase().replace(" ", "-")}/${subItem.toLowerCase().replace(" ", "-")}`} 
+                            className="text-base text-black hover:underline cursor-pointer mb-2"
+                            onClick={() => setActiveMenu(null)}
+                          >
+                            {subItem}
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
+                    {/* Second Column for Wedding Dresses */}
+                    {item.name === "WEDDING DRESSES" && (
+                      <div className="flex flex-col">
+                        {item.subItems[1].map((subItem) => (
+                          <motion.div
+                            key={subItem}
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <Link 
+                              to={
+                                subItem === "Winter" ? "/wedding-dresses/winter-wedding-dress" :
+                                subItem === "Boho" ? "/wedding-dresses/boho-wedding-dress" :
+                                subItem === "Civil Marriage" ? "/wedding-dresses/civil-marriage" :
+                                subItem === "Simple" ? "/wedding-dresses/simple" :
+                                `/${item.name.toLowerCase().replace(" ", "-")}/${subItem.toLowerCase().replace(" ", "-")}`
+                              } 
+                              className="text-base text-black hover:underline cursor-pointer mb-2"
+                              onClick={() => setActiveMenu(null)}
+                            >
+                              {subItem}
+                            </Link>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
                   </motion.div>
                 </motion.div>
               )
@@ -327,9 +387,41 @@ function Navbar({ onSidebarToggle }) {
                   <motion.button onClick={() => setShowWeddingSubmenu(false)} className="flex items-center text-base hover:text-gray-600">
                     <ChevronLeft size={20} /> WEDDING DRESSES
                   </motion.button>
-                  <motion.ul className="space-y-6">
+                  <motion.ul className="space-y-3">
                     <motion.li><Link to="/wedding-dresses/all" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>All Wedding Dresses</Link></motion.li>
                     <motion.li><Link to="/wedding-dresses/new-in" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>New In</Link></motion.li>
+                    <motion.li>
+                      <button 
+                        onClick={() => setShowSilhouetteSubmenu(!showSilhouetteSubmenu)} 
+                        className="text-base hover:text-gray-600 flex items-center justify-between w-full"
+                      >
+                        SILEHOUETTE <span>{showSilhouetteSubmenu ? '<' : '>'}</span>
+                      </button>
+                      {showSilhouetteSubmenu && (
+                        <motion.ul className="mt-1 pl-4 space-y-2">
+                          <motion.li><Link to="/wedding-dresses/siren" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>Siren</Link></motion.li>
+                          <motion.li><Link to="/wedding-dresses/princess" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>Princess</Link></motion.li>
+                          <motion.li><Link to="/wedding-dresses/a-line" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>A-Line</Link></motion.li>
+                          <motion.li><Link to="/wedding-dresses/curvy" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>Curvy</Link></motion.li>
+                        </motion.ul>
+                      )}
+                    </motion.li>
+                    <motion.li>
+                      <button 
+                        onClick={() => setShowStyleSubmenu(!showStyleSubmenu)} 
+                        className="text-base hover:text-gray-600 flex items-center justify-between w-full"
+                      >
+                        STYLE <span>{showStyleSubmenu ? '<' : '>'}</span>
+                      </button>
+                      {showStyleSubmenu && (
+                        <motion.ul className="mt-1 pl-4 space-y-2">
+                          <motion.li><Link to="/wedding-dresses/winter-wedding-dress" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>Winter</Link></motion.li>
+                          <motion.li><Link to="/wedding-dresses/boho-wedding-dress" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>Boho</Link></motion.li>
+                          <motion.li><Link to="/wedding-dresses/civil-marriage" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>Civil Marriage</Link></motion.li>
+                          <motion.li><Link to="/wedding-dresses/simple" className="block text-base hover:text-gray-600" onClick={() => setIsOpen(false)}>Simple</Link></motion.li>
+                        </motion.ul>
+                      )}
+                    </motion.li>
                   </motion.ul>
                 </motion.div>
               )}
